@@ -1,15 +1,13 @@
 <template>
   <div>
     <table border="1" class="table" cellpadding="10" cellspacing="0" ref="thisTable">
-      <tr v-for="(item,fatherindex) in items">
-        <td v-for="(num,index) in item"
-            v-on:mousedown="downButton($event,index,fatherindex)"
+      <tr v-for="item in items">
+        <td v-for="num in item"
+            v-on:mousedown="downButton($event)"
             ref="thisCell"
             v-on:mouseup="upButton()"
-            :data-fatherIndex="fatherindex"
-            :data-index="index"
         >
-          {{fatherindex}}- {{index}}-{{num}}
+          {{num}}
         </td>
       </tr>
     </table>
@@ -19,15 +17,15 @@
 <script>
   export default {
     data() {
+      let data = [];
+      for (let i = 0; i < 10; i++) {
+        data[i]=new Array(10)
+        for (let j = 0; j < 10; j++){
+          data[i][j] = Math.round(Math.random()*(10-1)+1);
+        }
+      }
       return {
-        items: [
-          [12, 3, 4, 55, 6, 32, 45, 5, 5, 5,],
-          [12, 3, 4, 55, 6, 32, 45, 5, 5, 5,],
-          [12, 3, 4, 55, 6, 32, 45, 5, 5, 5,],
-          [12, 3, 4, 55, 6, 32, 45, 5, 5, 5,],
-          [12, 3, 4, 55, 6, 32, 45, 5, 5, 5,],
-          [12, 3, 4, 55, 6, 32, 45, 5, 5, 5,],
-        ],
+        items:data,
         startPoint: {
           x: null,
           y: null
@@ -53,8 +51,8 @@
     methods: {
       //按下表格单元格时
       downButton(e, index, fatherindex) {
-        this.startPoint.x = index;
-        this.startPoint.y = fatherindex;
+        this.startPoint.x = e.target.cellIndex;
+        this.startPoint.y = e.path[1].rowIndex;
         let thiscell = e.target;
 
         //flag作为判断当前的单元格是否被选中从而有背景色
@@ -82,29 +80,28 @@
 
       //给选中区域添加背景色
       method(e) {
+        //四个变量分别为选中区域的起点坐标与终点坐标
         let startx, starty, endx, endy;
-        this.endPoint.x = Number(e.target.getAttribute('data-index'));
-        this.endPoint.y = Number(e.target.getAttribute('data-fatherIndex'));
-        startx = this.findMin(this.endPoint.x, this.startPoint.x)
-        starty = this.findMin(this.endPoint.y, this.startPoint.y)
-        endx = this.findMax(this.endPoint.x, this.startPoint.x)
-        endy = this.findMax(this.endPoint.y, this.startPoint.y)
 
+        this.endPoint.x = e.target.cellIndex;
+        this.endPoint.y = e.path[1].rowIndex;
+
+        //根据鼠标点击起点单元格坐标和划过的单元格坐标设置添加颜色的矩形框的起止
+        startx = Math.min(this.endPoint.x, this.startPoint.x)
+        starty = Math.min(this.endPoint.y, this.startPoint.y)
+        endx = Math.max(this.endPoint.x, this.startPoint.x)
+        endy = Math.max(this.endPoint.y, this.startPoint.y)
+
+        //给矩形框内的单元格添加颜色
         for (let i = startx; i <= endx; i++) {
           for (let j = starty; j <= endy; j++) {
-            let num = j * this.items[0].length + i
+            //根据坐标找到对应单元格的dom
+            let num = j * this.items[0].length + i;
             this.$refs.thisCell[num].className = 'blue';
           }
         }
       },
 
-      // 取最大最小值
-      findMin(x, y) {
-        return x < y ? x : y;
-      },
-      findMax(x, y) {
-        return x > y ? x : y;
-      }
 
     }
 
@@ -115,6 +112,10 @@
   .table {
     margin: 0 auto;
     user-select: none;
+  }
+
+  .blue {
+    background-color: #8cc5ff;
   }
 
 </style>
