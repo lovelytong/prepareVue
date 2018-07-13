@@ -56,15 +56,19 @@
         this.startPoint.x = index;
         this.startPoint.y = fatherindex;
         let thiscell = e.target;
+
+        //flag作为判断当前的单元格是否被选中从而有背景色
         let flag = thiscell.className === 'blue'
+        //给所有的单元格设置监听事件
         for (let cell of this.$refs.thisCell) {
-          if (e.button == 0 || e.button == 1) {
-            cell.className = '';
-          } else if(!flag){
+          //如果点击的是左键或者滚轮,或者当前单元格没有被选中过，所有的单元格颜色都清空
+          if (e.button == 0 || e.button == 1 || !flag) {
             cell.className = '';
           }
+          //给所有的单元格添加监听事件，鼠标划过时，使其选中
           cell.addEventListener("mouseover", this.method)
         }
+        //设置当前单元格背景色
         thiscell.className = 'blue';
       },
 
@@ -112,14 +116,5 @@
     margin: 0 auto;
     user-select: none;
   }
-
-  .blue {
-    background-color: #8cc5ff;
-  }
-
-  .cell:hover {
-    background-color: #8cc5ff;
-  }
-
 
 </style>
